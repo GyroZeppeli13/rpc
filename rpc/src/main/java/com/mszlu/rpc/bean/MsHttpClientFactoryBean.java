@@ -1,6 +1,6 @@
 package com.mszlu.rpc.bean;
 
-//import com.mszlu.rpc.proxy.MsRpcClientProxy;
+import com.mszlu.rpc.proxy.MsHttpClientProxy;
 import org.springframework.beans.factory.FactoryBean;
 //FactoryBean是一个工厂Bean，可以生成某一个类型Bean实例，它最大的一个作用是：可以让我们自定义Bean的创建过程。
 public class MsHttpClientFactoryBean<T> implements FactoryBean<T> {
@@ -9,8 +9,7 @@ public class MsHttpClientFactoryBean<T> implements FactoryBean<T> {
     //返回的对象实例
     @Override
     public T getObject() throws Exception {
-        return  null;
-//        return new MsHttpClientProxy().getProxy(interfaceClass);
+        return new MsHttpClientProxy().getProxy(interfaceClass);
     }
     //Bean的类型
     @Override
