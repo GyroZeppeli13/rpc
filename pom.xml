@@ -10,6 +10,7 @@
     <modules>
         <module>consumer-parent</module>
         <module>provider-parent</module>
+        <module>rpc</module>
     </modules>
 
     <properties>
