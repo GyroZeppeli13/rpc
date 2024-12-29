@@ -1,6 +1,6 @@
 package com.mszlu.rpc.annontation;
 
-import com.mszlu.rpc.rpc.MsRpcSpringBeanPostProcessor;
+import com.mszlu.rpc.spring.MsRpcSpringBeanPostProcessor;
 import org.springframework.context.annotation.Import;
 
 import java.lang.annotation.*;
