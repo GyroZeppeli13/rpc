@@ -1,6 +1,8 @@
 package com.mszlu.rpc.consumer.controller;
 
+import com.mszlu.rpc.annontation.MsReference;
 import com.mszlu.rpc.consumer.rpc.GoodsHttpRpc;
+import com.mszlu.rpc.provider.service.GoodsService;
 import com.mszlu.rpc.provider.service.modal.Goods;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -27,11 +29,20 @@ public class ConsumerController {
 //        return null;
 //    }
 
-    @Autowired
-    private GoodsHttpRpc goodsHttpRpc;
+//    // http调用
+//    @Autowired
+//    private GoodsHttpRpc goodsHttpRpc;
+//
+//    @GetMapping("/find/{id}")
+//    public Goods find(@PathVariable Long id){
+//        return goodsHttpRpc.findGoods(id);
+//    }
+
+    @MsReference(uri = "http://localhost:7777/", resultType = Goods.class)
+    private GoodsService goodsService;
 
     @GetMapping("/find/{id}")
     public Goods find(@PathVariable Long id){
-        return goodsHttpRpc.findGoods(id);
+        return goodsService.findGoods(id);
     }
 }
