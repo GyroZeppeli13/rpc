@@ -20,7 +20,7 @@ public class MsRpcThreadFactory implements ThreadFactory {
         this.msServiceProvider = msServiceProvider;
         SecurityManager securityManager = System.getSecurityManager();
         threadGroup = securityManager != null ? securityManager.getThreadGroup() :Thread.currentThread().getThreadGroup();
-        namePrefix = "ms-rpc-" + poolNumber.getAndIncrement()+"-thread-";
+        namePrefix = "ms-rpc-" + poolNumber.getAndIncrement() + "-thread-";
     }
 
     //创建的线程以“N-thread-M”命名，N是该工厂的序号，M是线程号

@@ -35,7 +35,7 @@ public class MsRpcSpringBeanPostProcessor implements BeanPostProcessor{
         MsService msService = bean.getClass().getAnnotation(MsService.class);
         if (msService != null){
             //发布服务，如果netty服务未启动进行启动
-            msServiceProvider.publishService(msService,bean);
+            msServiceProvider.publishService(msService, bean);
         }
         //在这里判断bean里面的字段有没有加@MsRefrence注解
         //如果有 识别并生成代理实现类，发起网络请求

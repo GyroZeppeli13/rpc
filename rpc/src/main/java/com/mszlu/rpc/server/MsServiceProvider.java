@@ -10,7 +10,6 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class MsServiceProvider {
 
-
     private final Map<String, Object> serviceMap;
 
     public MsServiceProvider(){
@@ -19,7 +18,7 @@ public class MsServiceProvider {
     }
 
     public void publishService(MsService msService,Object service) {
-        registerService(msService,service);
+        registerService(msService, service);
         //检测到有服务发布的注解，启动NettyServer
         NettyServer nettyServer = SingletonFactory.getInstance(NettyServer.class);
         nettyServer.setMsServiceProvider(this);

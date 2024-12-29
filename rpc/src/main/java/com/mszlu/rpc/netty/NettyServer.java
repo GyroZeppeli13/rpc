@@ -35,7 +35,7 @@ public class NettyServer implements MsServer {
         try {
             ServerBootstrap b = new ServerBootstrap();
 
-            eventExecutors = new DefaultEventExecutorGroup(RuntimeUtil.cpus() * 2,new MsRpcThreadFactory(msServiceProvider));
+            eventExecutors = new DefaultEventExecutorGroup(RuntimeUtil.cpus() * 2, new MsRpcThreadFactory(msServiceProvider));
             b.group(workerGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
                     // TCP默认开启了 Nagle 算法，该算法的作用是尽可能的发送大数据快，减少网络传输。TCP_NODELAY 参数的作用就是控制是否启用 Nagle 算法。
@@ -49,14 +49,14 @@ public class NettyServer implements MsServer {
                     .childHandler(new NettyServerInitiator(eventExecutors));
 
             // 绑定端口，同步等待绑定成功
-             b.bind(13567).sync().channel();
+            b.bind(13567).sync().channel();
             isRunning = true;
-             Runtime.getRuntime().addShutdownHook(new Thread(){
+            Runtime.getRuntime().addShutdownHook(new Thread(){
                  @Override
                  public void run() {
                     stopNettyServer();
                  }
-             });
+            });
         }catch (InterruptedException e){
             log.error("occur exception when start server:",e);
         }
@@ -78,7 +78,6 @@ public class NettyServer implements MsServer {
             workerGroup.shutdownGracefully();
         }
     }
-
 
     public void setMsServiceProvider(MsServiceProvider msServiceProvider) {
         this.msServiceProvider = msServiceProvider;
