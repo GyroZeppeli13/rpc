@@ -54,7 +54,7 @@ public class MsRpcDecoder extends LengthFieldBasedFrameDecoder {
         Object decode = super.decode(ctx, in);
         if (decode instanceof ByteBuf){
             ByteBuf frame = (ByteBuf) decode;
-            if (frame.readableBytes() < MsRpcConstants.TOTAL_LENGTH){
+            if (frame.readableBytes() < MsRpcConstants.HEAD_LENGTH){
                 throw new MsRpcException("数据长度不符,格式有误");
             }
             return decodeFrame(frame);
@@ -86,7 +86,7 @@ public class MsRpcDecoder extends LengthFieldBasedFrameDecoder {
                 .requestId(requestId)
                 .build();
         //8. 读取数据
-        int bodyLength = fullLength - MsRpcConstants.TOTAL_LENGTH;
+        int bodyLength = fullLength - MsRpcConstants.HEAD_LENGTH;
         if (bodyLength > 0){
             //有数据,读取body的数据
             byte[] bodyData = new byte[bodyLength];
