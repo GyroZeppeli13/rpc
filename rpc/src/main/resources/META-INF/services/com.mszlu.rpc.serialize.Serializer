@@ -1,1 +1,3 @@
 com.mszlu.rpc.serialize.ProtostuffSerializer
+com.mszlu.rpc.serialize.KryoSerializer
+com.mszlu.rpc.serialize.HessianSerializer

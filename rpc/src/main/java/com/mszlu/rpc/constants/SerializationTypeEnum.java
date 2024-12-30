@@ -7,7 +7,9 @@ import lombok.Getter;
 @Getter
 public enum SerializationTypeEnum {
 	//读取协议的序列化类型，来此枚举进行匹配
-    PROTOSTUFF((byte) 0x01, "protostuff");
+    PROTOSTUFF((byte) 0x01, "protostuff"),
+    KRYO((byte) 0x02, "Kryo"),
+    HESSIAN((byte) 0x03, "Hessian");
 
     private final byte code;
     private final String name;
