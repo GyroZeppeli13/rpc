@@ -2,8 +2,14 @@ package com.mszlu.rpc.netty.codec;
 
 import com.mszlu.rpc.compress.Compress;
 import com.mszlu.rpc.constants.CompressTypeEnum;
+import com.mszlu.rpc.constants.MessageTypeEnum;
 import com.mszlu.rpc.constants.MsRpcConstants;
+import com.mszlu.rpc.constants.SerializationTypeEnum;
 import com.mszlu.rpc.exception.MsRpcException;
+import com.mszlu.rpc.message.MsMessage;
+import com.mszlu.rpc.message.MsRequest;
+import com.mszlu.rpc.message.MsResponse;
+import com.mszlu.rpc.serialize.Serializer;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
@@ -60,7 +66,7 @@ public class MsRpcDecoder extends LengthFieldBasedFrameDecoder {
         //顺序读取
         //1. 先读取魔法数，确定是我们自定义的协议
         checkMagicNumber(in);
-        //2. 检查版本
+        //2.检查版本
         checkVersion(in);
         //3.数据长度
         int fullLength = in.readInt();
@@ -70,8 +76,15 @@ public class MsRpcDecoder extends LengthFieldBasedFrameDecoder {
         byte codecType = in.readByte();
         //6.压缩类型
         byte compressType = in.readByte();
-        //7. 请求id
+        //7.请求id
         int requestId = in.readInt();
+        //封装返回数据
+        MsMessage msMessage = MsMessage.builder()
+                .codec(codecType)
+                .compress(compressType)
+                .messageType(messageType)
+                .requestId(requestId)
+                .build();
         //8. 读取数据
         int bodyLength = fullLength - MsRpcConstants.TOTAL_LENGTH;
         if (bodyLength > 0){
@@ -81,10 +94,31 @@ public class MsRpcDecoder extends LengthFieldBasedFrameDecoder {
             //解压缩 使用gzip
             Compress compress = loadCompress(compressType);
             bodyData = compress.decompress(bodyData);
-
             //反序列化
+            Serializer serializer = loadSerializer(codecType);
+            if (messageType == MessageTypeEnum.REQUEST.getCode()){
+                MsRequest msRequest = (MsRequest) serializer.deserialize(bodyData, MsRequest.class);
+                msMessage.setData(msRequest);
+                return msMessage;
+            }
+            if (messageType == MessageTypeEnum.RESPONSE.getCode()){
+                MsResponse msResponse = (MsResponse) serializer.deserialize(bodyData, MsResponse.class);
+                msMessage.setData(msResponse);
+                return msMessage;
+            }
         }
         return null;
+    }
+
+    private Serializer loadSerializer(byte codecType) {
+        String serializerName = SerializationTypeEnum.getName(codecType);
+        ServiceLoader<Serializer> load = ServiceLoader.load(Serializer.class);
+        for (Serializer serializer : load) {
+            if (serializer.name().equals(serializerName)) {
+                return serializer;
+            }
+        }
+        throw new MsRpcException("无对应的序列化类型");
     }
 
     private Compress loadCompress(byte compressType) {
