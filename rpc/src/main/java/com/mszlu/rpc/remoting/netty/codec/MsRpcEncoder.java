@@ -1,9 +1,9 @@
-package com.mszlu.rpc.netty.codec;
+package com.mszlu.rpc.remoting.netty.codec;
 
 import com.mszlu.rpc.compress.Compress;
-import com.mszlu.rpc.constants.CompressTypeEnum;
+import com.mszlu.rpc.enums.CompressTypeEnum;
 import com.mszlu.rpc.constants.MsRpcConstants;
-import com.mszlu.rpc.constants.SerializationTypeEnum;
+import com.mszlu.rpc.enums.SerializationTypeEnum;
 import com.mszlu.rpc.exception.MsRpcException;
 import com.mszlu.rpc.message.MsMessage;
 import com.mszlu.rpc.serialize.Serializer;

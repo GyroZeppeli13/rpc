@@ -1,4 +1,4 @@
-package com.mszlu.rpc.netty.client;
+package com.mszlu.rpc.remoting.netty.client;
 
 
 import com.mszlu.rpc.message.MsResponse;

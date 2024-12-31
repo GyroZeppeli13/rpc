@@ -38,7 +38,7 @@ public class ConsumerController {
 //        return goodsHttpRpc.findGoods(id);
 //    }
 
-    @MsReference(host = "localhost",port = 13567)
+    @MsReference(host = "localhost", port = 13567)
     private GoodsService goodsService;
 
     @GetMapping("/find/{id}")

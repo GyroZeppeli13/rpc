@@ -1,4 +1,4 @@
-package com.mszlu.rpc.constants;
+package com.mszlu.rpc.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

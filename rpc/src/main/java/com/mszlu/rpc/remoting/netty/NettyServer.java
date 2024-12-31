@@ -1,7 +1,8 @@
-package com.mszlu.rpc.netty;
+package com.mszlu.rpc.remoting.netty;
 
-import com.mszlu.rpc.netty.handler.MsRpcThreadFactory;
-import com.mszlu.rpc.netty.handler.server.NettyServerInitiator;
+import com.mszlu.rpc.remoting.MsServer;
+import com.mszlu.rpc.remoting.netty.server.MsRpcThreadFactory;
+import com.mszlu.rpc.remoting.netty.server.handler.NettyServerInitiator;
 import com.mszlu.rpc.server.MsServiceProvider;
 import com.mszlu.rpc.utils.RuntimeUtil;
 import io.netty.bootstrap.ServerBootstrap;

@@ -1,4 +1,4 @@
-package com.mszlu.rpc.netty.handler.server;
+package com.mszlu.rpc.remoting.handler;
 
 import com.mszlu.rpc.exception.MsRpcException;
 import com.mszlu.rpc.factory.SingletonFactory;

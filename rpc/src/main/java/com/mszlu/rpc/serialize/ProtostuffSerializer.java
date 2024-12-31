@@ -1,6 +1,6 @@
 package com.mszlu.rpc.serialize;
 
-import com.mszlu.rpc.constants.SerializationTypeEnum;
+import com.mszlu.rpc.enums.SerializationTypeEnum;
 import io.protostuff.LinkedBuffer;
 import io.protostuff.ProtostuffIOUtil;
 import io.protostuff.Schema;

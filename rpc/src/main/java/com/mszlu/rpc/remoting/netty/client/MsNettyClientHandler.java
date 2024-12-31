@@ -1,6 +1,6 @@
-package com.mszlu.rpc.netty.client;
+package com.mszlu.rpc.remoting.netty.client;
 
-import com.mszlu.rpc.constants.MessageTypeEnum;
+import com.mszlu.rpc.enums.MessageTypeEnum;
 import com.mszlu.rpc.factory.SingletonFactory;
 import com.mszlu.rpc.message.MsMessage;
 import com.mszlu.rpc.message.MsResponse;

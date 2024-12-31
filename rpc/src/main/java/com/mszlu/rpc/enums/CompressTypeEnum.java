@@ -1,22 +1,19 @@
-package com.mszlu.rpc.constants;
+package com.mszlu.rpc.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public enum MessageTypeEnum {
-
-    REQUEST((byte) 0x01, "request"),
-    RESPONSE((byte) 0x02, "response"),
-    HEARTBEAT_PING((byte) 0x03, "heart ping"),
-    HEARTBEAT_PONG((byte) 0x04, "heart pong");
+public enum CompressTypeEnum {
+	//读取协议这的压缩类型，来此枚举进行匹配
+    GZIP((byte) 0x01, "gzip");
 
     private final byte code;
     private final String name;
 
     public static String getName(byte code) {
-        for (MessageTypeEnum c : MessageTypeEnum.values()) {
+        for (CompressTypeEnum c : CompressTypeEnum.values()) {
             if (c.getCode() == code) {
                 return c.name;
             }

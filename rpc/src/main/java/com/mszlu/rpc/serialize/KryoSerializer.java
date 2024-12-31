@@ -1,7 +1,7 @@
 package com.mszlu.rpc.serialize;
 
 import com.esotericsoftware.kryo.Kryo;
-import com.mszlu.rpc.constants.SerializationTypeEnum;
+import com.mszlu.rpc.enums.SerializationTypeEnum;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.mszlu.rpc.exception.MsRpcException;

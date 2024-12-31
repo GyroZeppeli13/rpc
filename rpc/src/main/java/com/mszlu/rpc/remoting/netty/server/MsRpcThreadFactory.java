@@ -1,4 +1,4 @@
-package com.mszlu.rpc.netty.handler;
+package com.mszlu.rpc.remoting.netty.server;
 
 import com.mszlu.rpc.server.MsServiceProvider;
 

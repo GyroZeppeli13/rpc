@@ -2,7 +2,7 @@ package com.mszlu.rpc.serialize;
 
 import com.caucho.hessian.io.HessianInput;
 import com.caucho.hessian.io.HessianOutput;
-import com.mszlu.rpc.constants.SerializationTypeEnum;
+import com.mszlu.rpc.enums.SerializationTypeEnum;
 import com.mszlu.rpc.exception.MsRpcException;
 
 import java.io.ByteArrayInputStream;

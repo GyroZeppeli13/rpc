@@ -1,6 +1,6 @@
 package com.mszlu.rpc.compress;
 
-import com.mszlu.rpc.constants.CompressTypeEnum;
+import com.mszlu.rpc.enums.CompressTypeEnum;
 import com.mszlu.rpc.exception.MsRpcException;
 
 import java.io.ByteArrayInputStream;

@@ -4,9 +4,7 @@ import com.mszlu.rpc.annontation.MsReference;
 import com.mszlu.rpc.exception.MsRpcException;
 import com.mszlu.rpc.message.MsRequest;
 import com.mszlu.rpc.message.MsResponse;
-import com.mszlu.rpc.netty.MsClient;
-import com.mszlu.rpc.netty.NettyClient;
-import org.springframework.util.StringUtils;
+import com.mszlu.rpc.remoting.MsClient;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -20,14 +18,14 @@ import java.util.concurrent.CompletableFuture;
 // 这个方法的调用就会被转发到实现InvocationHandler接口类的invoke方法来调用
 public class MsRpcClientProxy implements InvocationHandler {
 
-    private MsClient nettyClient;
+    private MsClient client;
 
     private MsReference msReference;
 
 
-    public MsRpcClientProxy(MsReference msReference, MsClient nettyClient) {
+    public MsRpcClientProxy(MsReference msReference, MsClient client) {
         this.msReference = msReference;
-        this.nettyClient = nettyClient;
+        this.client = client;
     }
 
     /**
@@ -46,10 +44,10 @@ public class MsRpcClientProxy implements InvocationHandler {
                 .requestId(requestId)
                 .version(msReference.version())
                 .build();
-        //创建Netty客户端
+        //创建客户端
         String host = msReference.host();
         int port = msReference.port();
-        CompletableFuture<MsResponse<Object>> future = (CompletableFuture<MsResponse<Object>>) nettyClient.sendRequest(request, host, port);
+        CompletableFuture<MsResponse<Object>> future = (CompletableFuture<MsResponse<Object>>) client.sendRequest(request, host, port);
         MsResponse<Object> msResponse = future.get();
         if (msResponse == null){
             throw new MsRpcException("服务调用失败");

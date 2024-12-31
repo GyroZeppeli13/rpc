@@ -1,8 +1,11 @@
 package com.mszlu.rpc.server;
 
 import com.mszlu.rpc.annontation.MsService;
+import com.mszlu.rpc.factory.ServerFactory;
 import com.mszlu.rpc.factory.SingletonFactory;
-import com.mszlu.rpc.netty.NettyServer;
+import com.mszlu.rpc.remoting.MsServer;
+import com.mszlu.rpc.remoting.netty.NettyServer;
+import com.mszlu.rpc.remoting.socket.SocketRpcServer;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
@@ -19,11 +22,12 @@ public class MsServiceProvider {
 
     public void publishService(MsService msService,Object service) {
         registerService(msService, service);
-        //检测到有服务发布的注解，启动NettyServer
-        NettyServer nettyServer = SingletonFactory.getInstance(NettyServer.class);
-        nettyServer.setMsServiceProvider(this);
-        if (!nettyServer.isRunning()){
-            nettyServer.run();
+        //检测到有服务发布的注解，启动Server
+//        MsServer server = SingletonFactory.getInstance(NettyServer.class);
+        MsServer server = ServerFactory.getServer();
+        server.setMsServiceProvider(this);
+        if (!server.isRunning()){
+            server.run();
         }
     }
 

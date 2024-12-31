@@ -1,7 +1,7 @@
-package com.mszlu.rpc.netty.handler.server;
+package com.mszlu.rpc.remoting.netty.server.handler;
 
-import com.mszlu.rpc.netty.codec.MsRpcDecoder;
-import com.mszlu.rpc.netty.codec.MsRpcEncoder;
+import com.mszlu.rpc.remoting.netty.codec.MsRpcDecoder;
+import com.mszlu.rpc.remoting.netty.codec.MsRpcEncoder;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.util.concurrent.EventExecutorGroup;

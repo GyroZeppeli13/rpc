@@ -2,10 +2,12 @@ package com.mszlu.rpc.spring;
 
 import com.mszlu.rpc.annontation.MsReference;
 import com.mszlu.rpc.annontation.MsService;
+import com.mszlu.rpc.factory.ClientFactory;
 import com.mszlu.rpc.factory.SingletonFactory;
-import com.mszlu.rpc.netty.MsClient;
-import com.mszlu.rpc.netty.NettyClient;
+import com.mszlu.rpc.remoting.MsClient;
+import com.mszlu.rpc.remoting.netty.NettyClient;
 import com.mszlu.rpc.proxy.MsRpcClientProxy;
+import com.mszlu.rpc.remoting.socket.SocketRpcClient;
 import com.mszlu.rpc.server.MsServiceProvider;
 import lombok.SneakyThrows;
 import org.springframework.beans.BeansException;
@@ -19,12 +21,13 @@ import java.lang.reflect.Field;
 public class MsRpcSpringBeanPostProcessor implements BeanPostProcessor{
 
     private MsServiceProvider msServiceProvider;
-    private MsClient nettyClient;
+    private MsClient client;
 
     public MsRpcSpringBeanPostProcessor(){
         msServiceProvider = SingletonFactory.getInstance(MsServiceProvider.class);
-        //创建netty客户端
-        nettyClient = SingletonFactory.getInstance(NettyClient.class);
+        //创建客户端
+//        client = SingletonFactory.getInstance(NettyClient.class);
+        client = ClientFactory.getClient();
     }
     ////bean初始化方法前被调用
     @SneakyThrows
@@ -49,7 +52,7 @@ public class MsRpcSpringBeanPostProcessor implements BeanPostProcessor{
             MsReference msReference = declaredField.getAnnotation(MsReference.class);
             if (msReference != null){
                 //代理实现类，调用方法的时候 会触发invoke方法，在其中实现网络调用
-                MsRpcClientProxy msRpcClientProxy = new MsRpcClientProxy(msReference, nettyClient);
+                MsRpcClientProxy msRpcClientProxy = new MsRpcClientProxy(msReference, client);
                 Object proxy = msRpcClientProxy.getProxy(declaredField.getType());
                 //当isAccessible()的结果是false时不允许通过反射访问该字段
                 declaredField.setAccessible(true);

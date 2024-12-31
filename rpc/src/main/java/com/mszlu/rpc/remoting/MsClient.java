@@ -1,8 +1,6 @@
-package com.mszlu.rpc.netty;
+package com.mszlu.rpc.remoting;
 
 import com.mszlu.rpc.message.MsRequest;
-
-import java.util.concurrent.ExecutionException;
 
 public interface MsClient {
 

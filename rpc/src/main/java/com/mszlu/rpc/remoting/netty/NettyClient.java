@@ -1,17 +1,18 @@
-package com.mszlu.rpc.netty;
+package com.mszlu.rpc.remoting.netty;
 
-import com.mszlu.rpc.constants.CompressTypeEnum;
-import com.mszlu.rpc.constants.MessageTypeEnum;
-import com.mszlu.rpc.constants.SerializationTypeEnum;
+import com.mszlu.rpc.enums.CompressTypeEnum;
+import com.mszlu.rpc.enums.MessageTypeEnum;
+import com.mszlu.rpc.enums.SerializationTypeEnum;
 import com.mszlu.rpc.exception.MsRpcException;
 import com.mszlu.rpc.factory.SingletonFactory;
 import com.mszlu.rpc.message.MsMessage;
 import com.mszlu.rpc.message.MsRequest;
 import com.mszlu.rpc.message.MsResponse;
-import com.mszlu.rpc.netty.client.MsNettyClientHandler;
-import com.mszlu.rpc.netty.client.UnprocessedRequests;
-import com.mszlu.rpc.netty.codec.MsRpcDecoder;
-import com.mszlu.rpc.netty.codec.MsRpcEncoder;
+import com.mszlu.rpc.remoting.MsClient;
+import com.mszlu.rpc.remoting.netty.client.MsNettyClientHandler;
+import com.mszlu.rpc.remoting.netty.client.UnprocessedRequests;
+import com.mszlu.rpc.remoting.netty.codec.MsRpcDecoder;
+import com.mszlu.rpc.remoting.netty.codec.MsRpcEncoder;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
