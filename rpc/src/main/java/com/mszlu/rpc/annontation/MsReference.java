@@ -9,7 +9,9 @@ import java.lang.annotation.*;
 @Inherited
 public @interface MsReference {
 
-    String uri() default "";
+    String host();
 
-    Class resultType();
+    int port();
+
+    String version() default "1.0";
 }
