@@ -1,5 +1,6 @@
 package com.mszlu.rpc.remoting;
 
+import com.mszlu.rpc.config.MsRpcConfig;
 import com.mszlu.rpc.message.MsRequest;
 
 public interface MsClient {
@@ -10,4 +11,6 @@ public interface MsClient {
      * @return
      */
     Object sendRequest(MsRequest msRequest);
+
+    void setMsRpcConfig(MsRpcConfig msRpcConfig);
 }

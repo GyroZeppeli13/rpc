@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 //@EnableHttpClient(basePackage = "com.mszlu.rpc.consumer.rpc")
-@EnableRpc(basePackage = "com.mszlu.rpc.consumer.rpc")
+@EnableRpc()
 public class ConsumerApp {
     public static void main(String[] args) {
         SpringApplication.run(ConsumerApp.class,args);

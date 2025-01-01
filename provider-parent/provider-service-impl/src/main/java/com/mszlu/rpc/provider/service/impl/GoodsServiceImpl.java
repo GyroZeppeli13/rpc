@@ -3,6 +3,7 @@ package com.mszlu.rpc.provider.service.impl;
 import com.mszlu.rpc.annontation.MsService;
 import com.mszlu.rpc.provider.service.GoodsService;
 import com.mszlu.rpc.provider.service.modal.Goods;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -18,8 +19,11 @@ public class GoodsServiceImpl implements GoodsService {
 //        return new Goods(id,"我是", BigDecimal.valueOf(100));
 //    }
 
+    @Value("${server.port}")
+    private int port;
+
     public Goods findGoods(Long id) {
-        String goodsName = "我是";
+        String goodsName = "我是" + port;
         System.out.println("GoodsName in UTF-8 bytes: " + Arrays.toString(goodsName.getBytes(StandardCharsets.UTF_8)));
         return new Goods(id, goodsName, BigDecimal.valueOf(100));
     }

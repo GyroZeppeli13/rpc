@@ -2,6 +2,7 @@ package com.mszlu.rpc.server;
 
 import com.alibaba.nacos.api.naming.pojo.Instance;
 import com.mszlu.rpc.annontation.MsService;
+import com.mszlu.rpc.config.MsRpcConfig;
 import com.mszlu.rpc.factory.ServerFactory;
 import com.mszlu.rpc.factory.SingletonFactory;
 import com.mszlu.rpc.register.nacos.NacosTemplate;
@@ -16,13 +17,19 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class MsServiceProvider {
 
+    public static final String ClusterName = "happy-rpc";
     private final Map<String, Object> serviceMap;
     private NacosTemplate nacosTemplate;
+    private MsRpcConfig msRpcConfig;
 
     public MsServiceProvider(){
         //发布的服务 都在这里
         serviceMap = new ConcurrentHashMap<>();
         nacosTemplate = SingletonFactory.getInstance(NacosTemplate.class);
+    }
+
+    public void init(MsRpcConfig msRpcConfig) {
+        this.msRpcConfig = msRpcConfig;
     }
 
     public void publishService(MsService msService,Object service) {
@@ -43,12 +50,12 @@ public class MsServiceProvider {
         //将服务注册到nacos上
         try {
             Instance instance = new Instance();
-            instance.setPort(NettyServer.PORT);
+            instance.setPort(msRpcConfig.getProviderPort());
             instance.setIp(InetAddress.getLocalHost().getHostAddress());
-            instance.setClusterName(NettyServer.groupName);
+            instance.setClusterName(ClusterName);
             instance.setServiceName(serviceName);
 //            nacosTemplate.registerServer(instance);
-            nacosTemplate.registerServer(NettyServer.groupName, instance);
+            nacosTemplate.registerServer(msRpcConfig.getNacosGroup(), instance);
         } catch (Exception e) {
             log.error("nacos 注册服务失败:",e);
         }
@@ -59,4 +66,7 @@ public class MsServiceProvider {
         return serviceMap.get(serviceName);
     }
 
+    public MsRpcConfig getMsRpcConfig() {
+        return this.msRpcConfig;
+    }
 }

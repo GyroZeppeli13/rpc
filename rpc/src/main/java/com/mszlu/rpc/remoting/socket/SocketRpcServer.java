@@ -6,6 +6,7 @@ import com.mszlu.rpc.utils.ThreadPoolFactoryUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -15,22 +16,18 @@ import java.util.concurrent.ExecutorService;
 public class SocketRpcServer implements MsServer {
 
     private final ExecutorService threadPool;
+    private MsServiceProvider msServiceProvider;
 
     private boolean isRunning;
 
     public SocketRpcServer() {
         threadPool = ThreadPoolFactoryUtil.createCustomThreadPoolIfAbsent("socket-server-rpc-pool");
-//        serviceProvider = SingletonFactory.getInstance(ZkServiceProviderImpl.class);
     }
-
-//    public void registerService(RpcServiceConfig rpcServiceConfig) {
-//        serviceProvider.publishService(rpcServiceConfig);
-//    }
 
     @Override
     public void run() {
         try (ServerSocket server = new ServerSocket()) {
-            server.bind(new InetSocketAddress("localhost", 13567));
+            server.bind(new InetSocketAddress(InetAddress.getLocalHost().getHostAddress(), msServiceProvider.getMsRpcConfig().getProviderPort()));
             isRunning = true;
             Runtime.getRuntime().addShutdownHook(new Thread(){
                 @Override
@@ -68,11 +65,11 @@ public class SocketRpcServer implements MsServer {
 
     @Override
     public void setMsServiceProvider(MsServiceProvider msServiceProvider) {
-
+        this.msServiceProvider = msServiceProvider;
     }
 
     @Override
     public boolean isRunning() {
-        return false;
+        return isRunning;
     }
 }

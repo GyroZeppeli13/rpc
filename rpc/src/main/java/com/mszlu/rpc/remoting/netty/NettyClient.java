@@ -1,6 +1,7 @@
 package com.mszlu.rpc.remoting.netty;
 
 import com.alibaba.nacos.api.naming.pojo.Instance;
+import com.mszlu.rpc.config.MsRpcConfig;
 import com.mszlu.rpc.enums.CompressTypeEnum;
 import com.mszlu.rpc.enums.MessageTypeEnum;
 import com.mszlu.rpc.enums.SerializationTypeEnum;
@@ -33,6 +34,7 @@ public class NettyClient implements MsClient {
     private final EventLoopGroup eventLoopGroup;
     private UnprocessedRequests unprocessedRequests;
     private NacosTemplate nacosTemplate;
+    private MsRpcConfig msRpcConfig;
 
 
     public NettyClient(){
@@ -63,7 +65,7 @@ public class NettyClient implements MsClient {
         String serviceName = msRequest.getInterfaceName() + msRequest.getVersion();
         Instance oneHealthyInstance = null;
         try {
-            oneHealthyInstance = nacosTemplate.getOneHealthyInstance(NettyServer.groupName, serviceName);
+            oneHealthyInstance = nacosTemplate.getOneHealthyInstance(msRpcConfig.getNacosGroup(), serviceName);
         } catch (Exception e) {
             throw new MsRpcException("没有获取到可用的服务提供者");
         }
@@ -119,5 +121,10 @@ public class NettyClient implements MsClient {
         }
 
         return resultFuture;
+    }
+
+    @Override
+    public void setMsRpcConfig(MsRpcConfig msRpcConfig) {
+        this.msRpcConfig = msRpcConfig;
     }
 }

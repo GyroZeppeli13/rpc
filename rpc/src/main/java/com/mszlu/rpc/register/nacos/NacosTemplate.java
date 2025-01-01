@@ -15,9 +15,11 @@ public class NacosTemplate {
 
     //初始化namingService和configService;
     public NacosTemplate(){
+    }
+    public void init(String host, int port){
         try {
 //             configService = NacosFactory.createConfigService("localhost:8848");
-             namingService = NacosFactory.createNamingService("localhost:8848");
+            namingService = NacosFactory.createNamingService(host+":"+port);
         } catch (NacosException e) {
             e.printStackTrace();
         }

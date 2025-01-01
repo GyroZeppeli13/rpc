@@ -1,6 +1,7 @@
 package com.mszlu.rpc.remoting.socket;
 
 import com.alibaba.nacos.api.naming.pojo.Instance;
+import com.mszlu.rpc.config.MsRpcConfig;
 import com.mszlu.rpc.exception.MsRpcException;
 import com.mszlu.rpc.factory.SingletonFactory;
 import com.mszlu.rpc.message.MsRequest;
@@ -21,6 +22,7 @@ import java.util.concurrent.CompletableFuture;
 public class SocketRpcClient implements MsClient {
 
     private NacosTemplate nacosTemplate;
+    private MsRpcConfig msRpcConfig;
 
     public SocketRpcClient() {
         this.nacosTemplate = SingletonFactory.getInstance(NacosTemplate.class);
@@ -33,7 +35,7 @@ public class SocketRpcClient implements MsClient {
         String serviceName = rpcRequest.getInterfaceName() + rpcRequest.getVersion();
         Instance oneHealthyInstance = null;
         try {
-            oneHealthyInstance = nacosTemplate.getOneHealthyInstance(NettyServer.groupName, serviceName);
+            oneHealthyInstance = nacosTemplate.getOneHealthyInstance(msRpcConfig.getNacosGroup(), serviceName);
         } catch (Exception e) {
             throw new MsRpcException("没有获取到可用的服务提供者");
         }
@@ -52,5 +54,10 @@ public class SocketRpcClient implements MsClient {
             throw new MsRpcException("调用服务失败:", e);
         }
         return resultFuture;
+    }
+
+    @Override
+    public void setMsRpcConfig(MsRpcConfig msRpcConfig) {
+        this.msRpcConfig = msRpcConfig;
     }
 }

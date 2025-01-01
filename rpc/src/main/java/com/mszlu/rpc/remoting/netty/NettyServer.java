@@ -15,12 +15,9 @@ import io.netty.handler.logging.LoggingHandler;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import lombok.extern.slf4j.Slf4j;
 
-
 @Slf4j
 public class NettyServer implements MsServer {
 
-    public static final int PORT = 13567;
-    public static final String groupName = "happy-rpc";
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
 
@@ -52,7 +49,7 @@ public class NettyServer implements MsServer {
                     .childHandler(new NettyServerInitiator(eventExecutors));
 
             // 绑定端口，同步等待绑定成功
-            b.bind(PORT).sync().channel();
+            b.bind(msServiceProvider.getMsRpcConfig().getProviderPort()).sync().channel();
             isRunning = true;
             Runtime.getRuntime().addShutdownHook(new Thread(){
                  @Override
@@ -88,9 +85,5 @@ public class NettyServer implements MsServer {
 
     public boolean isRunning() {
         return isRunning;
-    }
-
-    public void setRunning(boolean running) {
-        isRunning = running;
     }
 }
