@@ -47,7 +47,7 @@ public class MsRpcClientProxy implements InvocationHandler {
         //创建客户端
         String host = msReference.host();
         int port = msReference.port();
-        CompletableFuture<MsResponse<Object>> future = (CompletableFuture<MsResponse<Object>>) client.sendRequest(request, host, port);
+        CompletableFuture<MsResponse<Object>> future = (CompletableFuture<MsResponse<Object>>) client.sendRequest(request);
         MsResponse<Object> msResponse = future.get();
         if (msResponse == null){
             throw new MsRpcException("服务调用失败");

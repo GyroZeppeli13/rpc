@@ -1,5 +1,6 @@
 package com.mszlu.rpc.remoting.netty;
 
+import com.alibaba.nacos.api.naming.pojo.Instance;
 import com.mszlu.rpc.enums.CompressTypeEnum;
 import com.mszlu.rpc.enums.MessageTypeEnum;
 import com.mszlu.rpc.enums.SerializationTypeEnum;
@@ -8,6 +9,7 @@ import com.mszlu.rpc.factory.SingletonFactory;
 import com.mszlu.rpc.message.MsMessage;
 import com.mszlu.rpc.message.MsRequest;
 import com.mszlu.rpc.message.MsResponse;
+import com.mszlu.rpc.register.nacos.NacosTemplate;
 import com.mszlu.rpc.remoting.MsClient;
 import com.mszlu.rpc.remoting.netty.client.MsNettyClientHandler;
 import com.mszlu.rpc.remoting.netty.client.UnprocessedRequests;
@@ -30,10 +32,12 @@ public class NettyClient implements MsClient {
     private final Bootstrap bootstrap;
     private final EventLoopGroup eventLoopGroup;
     private UnprocessedRequests unprocessedRequests;
+    private NacosTemplate nacosTemplate;
 
 
     public NettyClient(){
         this.unprocessedRequests = SingletonFactory.getInstance(UnprocessedRequests.class);
+        this.nacosTemplate = SingletonFactory.getInstance(NacosTemplate.class);
         eventLoopGroup = new NioEventLoopGroup();
         bootstrap = new Bootstrap();
         bootstrap.group(eventLoopGroup)
@@ -51,10 +55,19 @@ public class NettyClient implements MsClient {
                 });
     }
 
-    public Object sendRequest(MsRequest msRequest,String host,int port) {
+    public Object sendRequest(MsRequest msRequest) {
         //发送数据
-        //1. 连接netty服务，获取channel
-        InetSocketAddress inetSocketAddress = new InetSocketAddress(host, port);
+//        //1. 连接netty服务，获取channel
+//        InetSocketAddress inetSocketAddress = new InetSocketAddress(host, port);
+        //通过注册中心获取主机和端口
+        String serviceName = msRequest.getInterfaceName() + msRequest.getVersion();
+        Instance oneHealthyInstance = null;
+        try {
+            oneHealthyInstance = nacosTemplate.getOneHealthyInstance(NettyServer.groupName, serviceName);
+        } catch (Exception e) {
+            throw new MsRpcException("没有获取到可用的服务提供者");
+        }
+        InetSocketAddress inetSocketAddress = new InetSocketAddress(oneHealthyInstance.getIp(), oneHealthyInstance.getPort());
         //连接
         CompletableFuture<Channel> completableFuture = new CompletableFuture<>();
 

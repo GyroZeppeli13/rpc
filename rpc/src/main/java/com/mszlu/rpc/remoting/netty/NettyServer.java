@@ -19,6 +19,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class NettyServer implements MsServer {
 
+    public static final int PORT = 13567;
+    public static final String groupName = "happy-rpc";
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
 
@@ -50,7 +52,7 @@ public class NettyServer implements MsServer {
                     .childHandler(new NettyServerInitiator(eventExecutors));
 
             // 绑定端口，同步等待绑定成功
-            b.bind(13567).sync().channel();
+            b.bind(PORT).sync().channel();
             isRunning = true;
             Runtime.getRuntime().addShutdownHook(new Thread(){
                  @Override
