@@ -38,8 +38,7 @@ public class NettyClient implements MsClient {
     private UnprocessedRequests unprocessedRequests;
     private NacosTemplate nacosTemplate;
     private MsRpcConfig msRpcConfig;
-    private static final Set<String> SERVICES= new CopyOnWriteArraySet<>();
-
+    private static final Set<String> SERVICES = new CopyOnWriteArraySet<>();
 
     public NettyClient(){
         this.unprocessedRequests = SingletonFactory.getInstance(UnprocessedRequests.class);
@@ -68,14 +67,15 @@ public class NettyClient implements MsClient {
         //通过注册中心获取主机和端口
         String serviceName = msRequest.getInterfaceName() + msRequest.getVersion();
         InetSocketAddress inetSocketAddress = null;
+        String ipAndPort = null;
         if (!SERVICES.isEmpty()){
             //有缓存的服务提供者服务器，直接获取
             //随机获取一个
             Optional<String> optional = SERVICES.stream().skip(SERVICES.size() - 1).findFirst();
             if (optional.isPresent()){
-                String ipAndPort = optional.get();
+                ipAndPort = optional.get();
                 String[] split = ipAndPort.split(",");
-                inetSocketAddress = new InetSocketAddress(split[0],Integer.parseInt(split[1]));
+                inetSocketAddress = new InetSocketAddress(split[0], Integer.parseInt(split[1]));
                 log.info("走了缓存的服务提供者地址，省去了连接nacos的过程...");
             }
         }
@@ -88,12 +88,14 @@ public class NettyClient implements MsClient {
                 throw new MsRpcException("没有获取到可用的服务提供者");
             }
             //从nacos获取实例后，将其缓存起来
-            SERVICES.add(oneHealthyInstance.getIp()+","+oneHealthyInstance.getPort());
+            ipAndPort = oneHealthyInstance.getIp()+","+oneHealthyInstance.getPort();
+            SERVICES.add(ipAndPort);
             inetSocketAddress = new InetSocketAddress(oneHealthyInstance.getIp(), oneHealthyInstance.getPort());
         }
         //连接
         CompletableFuture<Channel> completableFuture = new CompletableFuture<>();
 
+        String finalIpAndPort = ipAndPort;
         bootstrap.connect(inetSocketAddress).addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {
@@ -101,6 +103,12 @@ public class NettyClient implements MsClient {
                     //代表连接成功，将channel放入任务中
                     completableFuture.complete(future.channel());
                 }else {
+                    //连接失败 从缓存中去除
+                    if(finalIpAndPort != null) {
+                        SERVICES.remove(finalIpAndPort);
+                        log.info("删除provider服务缓存成功...");
+                    }
+                    completableFuture.completeExceptionally(future.cause());
                     throw new MsRpcException("连接服务器失败");
                 }
             }

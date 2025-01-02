@@ -26,7 +26,7 @@ public class SocketRpcClient implements MsClient {
 
     private NacosTemplate nacosTemplate;
     private MsRpcConfig msRpcConfig;
-    private static final Set<String> SERVICES= new CopyOnWriteArraySet<>();
+    private static final Set<String> SERVICES = new CopyOnWriteArraySet<>();
 
     public SocketRpcClient() {
         this.nacosTemplate = SingletonFactory.getInstance(NacosTemplate.class);
@@ -38,12 +38,13 @@ public class SocketRpcClient implements MsClient {
         String serviceName = rpcRequest.getInterfaceName() + rpcRequest.getVersion();
 
         InetSocketAddress inetSocketAddress = null;
+        String ipAndPort = null;
         if (!SERVICES.isEmpty()){
             //有缓存的服务提供者服务器，直接获取
             //随机获取一个
             Optional<String> optional = SERVICES.stream().skip(SERVICES.size() - 1).findFirst();
             if (optional.isPresent()){
-                String ipAndPort = optional.get();
+                ipAndPort = optional.get();
                 String[] split = ipAndPort.split(",");
                 inetSocketAddress = new InetSocketAddress(split[0],Integer.parseInt(split[1]));
                 log.info("走了缓存的服务提供者地址，省去了连接nacos的过程...");
@@ -58,7 +59,8 @@ public class SocketRpcClient implements MsClient {
                 throw new MsRpcException("没有获取到可用的服务提供者");
             }
             //从nacos获取实例后，将其缓存起来
-            SERVICES.add(oneHealthyInstance.getIp()+","+oneHealthyInstance.getPort());
+            ipAndPort = oneHealthyInstance.getIp()+","+oneHealthyInstance.getPort();
+            SERVICES.add(ipAndPort);
             inetSocketAddress = new InetSocketAddress(oneHealthyInstance.getIp(), oneHealthyInstance.getPort());
         }
         //连接
@@ -71,9 +73,15 @@ public class SocketRpcClient implements MsClient {
             ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
             // Read RpcResponse from the input stream
             resultFuture.complete((MsResponse<Object>) objectInputStream.readObject());
-        } catch (IOException | ClassNotFoundException e) {
-            resultFuture.completeExceptionally(e);
-            throw new MsRpcException("调用服务失败:", e);
+        } catch (IOException e) {
+            //与选择服务端实例IO失败 从缓存中去除
+            if(ipAndPort != null) {
+                SERVICES.remove(ipAndPort);
+                log.info("删除provider服务缓存成功...");
+            }
+            throw new MsRpcException("连接服务器失败");
+        } catch (ClassNotFoundException e) {
+            throw new MsRpcException("ClassNotFoundException", e);
         }
         return resultFuture;
     }
