@@ -50,7 +50,7 @@ public class NacosTemplate {
         return namingService.selectOneHealthyInstance(serverName);
     }
 
-    public Instance getOneHealthyInstance(String groupName, String serverName) throws Exception{
+    public Instance getOneHealthyInstance(String serverName, String groupName) throws Exception{
         return namingService.selectOneHealthyInstance(serverName, groupName);
     }
 

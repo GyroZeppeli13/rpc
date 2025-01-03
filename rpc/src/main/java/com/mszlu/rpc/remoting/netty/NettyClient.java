@@ -14,6 +14,7 @@ import com.mszlu.rpc.register.nacos.NacosTemplate;
 import com.mszlu.rpc.remoting.MsClient;
 import com.mszlu.rpc.remoting.netty.client.MsNettyClientHandler;
 import com.mszlu.rpc.remoting.netty.client.UnprocessedRequests;
+import com.mszlu.rpc.remoting.netty.client.idle.ConnectionWatchdog;
 import com.mszlu.rpc.remoting.netty.codec.MsRpcDecoder;
 import com.mszlu.rpc.remoting.netty.codec.MsRpcEncoder;
 import io.netty.bootstrap.Bootstrap;
@@ -24,6 +25,7 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.timeout.IdleStateHandler;
+import io.netty.util.HashedWheelTimer;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
@@ -41,6 +43,7 @@ public class NettyClient implements MsClient {
     private NacosTemplate nacosTemplate;
     private MsRpcConfig msRpcConfig;
     private static final Set<String> SERVICES = new CopyOnWriteArraySet<>();
+    protected final HashedWheelTimer timer = new HashedWheelTimer();
 
     public NettyClient(){
         this.unprocessedRequests = SingletonFactory.getInstance(UnprocessedRequests.class);
@@ -52,16 +55,17 @@ public class NettyClient implements MsClient {
                 .handler(new LoggingHandler(LogLevel.INFO))
                 //超时时间设置
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS,5000)
-                .handler(new ChannelInitializer<SocketChannel>() {
-                    @Override
-                    protected void initChannel(SocketChannel ch) throws Exception {
-                        //3s 没收到写请求，进行心跳检测
-                        ch.pipeline().addLast(new IdleStateHandler(0, 3, 0, TimeUnit.SECONDS));
-                        ch.pipeline ().addLast ( "decoder",new MsRpcDecoder() );
-                        ch.pipeline ().addLast ( "encoder",new MsRpcEncoder());
-                        ch.pipeline ().addLast ( "handler",new MsNettyClientHandler() );
-                    }
-                });
+//                .handler(new ChannelInitializer<SocketChannel>() {
+//                    @Override
+//                    protected void initChannel(SocketChannel ch) throws Exception {
+//                        //3s 没收到写请求，进行心跳检测
+//                        ch.pipeline().addLast(new IdleStateHandler(0, 3, 0, TimeUnit.SECONDS));
+//                        ch.pipeline ().addLast ( "decoder",new MsRpcDecoder() );
+//                        ch.pipeline ().addLast ( "encoder",new MsRpcEncoder());
+//                        ch.pipeline ().addLast ( "handler",new MsNettyClientHandler() );
+//                    }
+//                })
+        ;
     }
 
     public Object sendRequest(MsRequest msRequest) {
@@ -87,7 +91,7 @@ public class NettyClient implements MsClient {
             Instance oneHealthyInstance = null;
             try {
                 //根据组 进行获取健康实例，服务提供方和消费方 不在一个组内 无法获取实例
-                oneHealthyInstance = nacosTemplate.getOneHealthyInstance(serviceName,msRpcConfig.getNacosGroup());
+                oneHealthyInstance = nacosTemplate.getOneHealthyInstance(serviceName, msRpcConfig.getNacosGroup());
             } catch (Exception e) {
                 throw new MsRpcException("没有获取到可用的服务提供者");
             }
@@ -98,7 +102,29 @@ public class NettyClient implements MsClient {
         }
         //连接
         CompletableFuture<Channel> completableFuture = new CompletableFuture<>();
+        final ConnectionWatchdog watchdog = new ConnectionWatchdog(bootstrap, timer, inetSocketAddress, completableFuture, true) {
+            @Override
+            public void clear(InetSocketAddress ia) {
+                SERVICES.remove(ia.getHostName()+","+ia.getPort());
+                log.info("链路检测狗 触发: 删除provider服务缓存成功...");
+            }
 
+            public ChannelHandler[] handlers() {
+                return new ChannelHandler[] {
+                        this,
+                        new IdleStateHandler(0, 3, 0, TimeUnit.SECONDS),
+                        new MsRpcDecoder(),
+                        new MsRpcEncoder(),
+                        new MsNettyClientHandler()
+                };
+            }
+        };
+        bootstrap.handler(new ChannelInitializer<SocketChannel>() {
+            @Override
+            protected void initChannel(SocketChannel ch) throws Exception {
+                ch.pipeline().addLast(watchdog.handlers());
+            }
+        });
         String finalIpAndPort = ipAndPort;
         bootstrap.connect(inetSocketAddress).addListener(new ChannelFutureListener() {
             @Override
