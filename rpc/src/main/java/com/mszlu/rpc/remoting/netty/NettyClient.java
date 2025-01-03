@@ -23,6 +23,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import io.netty.handler.timeout.IdleStateHandler;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
@@ -30,6 +31,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class NettyClient implements MsClient {
@@ -53,6 +55,8 @@ public class NettyClient implements MsClient {
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
+                        //3s 没收到写请求，进行心跳检测
+                        ch.pipeline().addLast(new IdleStateHandler(0, 3, 0, TimeUnit.SECONDS));
                         ch.pipeline ().addLast ( "decoder",new MsRpcDecoder() );
                         ch.pipeline ().addLast ( "encoder",new MsRpcEncoder());
                         ch.pipeline ().addLast ( "handler",new MsNettyClientHandler() );
